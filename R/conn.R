@@ -115,7 +115,7 @@
 #' }
 #' @export
 #' @rdname neuprint_login
-neuprint_connection <- function(server=NULL, token=NULL, ..., conn=NULL) {
+neuprint_connection <- function(server=NULL, token=NULL, conn=NULL, config=httr::config()) {
   if (!is.null(conn))
     return(conn)
   # Set a default server if none specified
@@ -128,7 +128,7 @@ neuprint_connection <- function(server=NULL, token=NULL, ..., conn=NULL) {
   if(missing(server)) {
     neuprint_token=defaultToken
   }
-  conn=list(server = neuprint_server, token = neuprint_token, config=httr::config(...))
+  conn=list(server = neuprint_server, token = neuprint_token, config=config)
   class(conn)='dv_conn'
   conn
 }
