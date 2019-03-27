@@ -115,7 +115,7 @@
 #' }
 #' @export
 #' @rdname neuprint_login
-neuprint_connection <- function(server= NULL, token= NULL, conn=NULL) {
+neuprint_connection <- function(server=NULL, token=NULL, ..., conn=NULL) {
   if (!is.null(conn))
     return(conn)
   # Set a default server if none specified
@@ -128,7 +128,7 @@ neuprint_connection <- function(server= NULL, token= NULL, conn=NULL) {
   if(missing(server)) {
     neuprint_token=defaultToken
   }
-  conn=list(server = neuprint_server, token = neuprint_token)
+  conn=list(server = neuprint_server, token = neuprint_token, config=httr::config(...))
   class(conn)='dv_conn'
   conn
 }
@@ -204,9 +204,15 @@ neuprint_login <- function(conn = NULL, Cache = TRUE, Force = FALSE, ...){
     }
     else warning("I can't seem to find a GAPS token.", "You will not be able to POST to this site!")
   }else {
-    conn$config = httr::add_headers(Authorization = paste0("Bearer ",conn$token),
-                                    referer = conn$server,
-                                    `Content-Type` = "application/json")
+    if(is.null(conn$config)) conn$config=httr::config()
+    conn$config = c(
+      conn$config,
+      httr::add_headers(
+        Authorization = paste0("Bearer ", conn$token),
+        referer = conn$server,
+        `Content-Type` = "application/json"
+      )
+    )
     conn$authresponse = httr::GET(url = conn$server,con=conn$config)
     httr::stop_for_status(conn$authresponse)
   }
